@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.spidergod.nobrokerassignment.data.local.entity.NoBrokerEntity
+import com.spidergod.nobrokerassignment.ui.components.LoadingShimmerAnimation
 import com.spidergod.nobrokerassignment.util.Resource
 import androidx.compose.runtime.livedata.observeAsState as observeAsState1
 
@@ -46,7 +47,12 @@ fun ListScreen(
             )
             val responseData by viewModel.responseData.observeAsState1()
 
-            responseData?.let { it1 -> ListOfResponses(responseData = it1) }
+            responseData?.let { it1 ->
+                ListOfResponses(
+                    responseData = it1,
+                    viewModel.currentSearchQuery.value
+                )
+            }
 
         }
 
@@ -54,20 +60,39 @@ fun ListScreen(
 }
 
 @Composable
-fun ListOfResponses(responseData: Resource<List<NoBrokerEntity>>) {
+fun ListOfResponses(responseData: Resource<List<NoBrokerEntity>>, currentSearchQuery: String) {
+    if (responseData is Resource.Loading && (responseData.data == null || responseData.data.isEmpty())) {
+        LoadingShimmerAnimation()
+    } else if (responseData is Resource.Error && (responseData.data == null || responseData.data.isEmpty())) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(text = "Check you internet connection")
+        }
+    } else {
+        ResponseLazyList(responseData = responseData, currentSearchQuery = currentSearchQuery)
+    }
+}
+
+@Composable
+fun ResponseLazyList(responseData: Resource<List<NoBrokerEntity>>, currentSearchQuery: String) {
     LazyColumn {
         item {
             Box(modifier = Modifier.height(10.dp))
         }
-
         items(responseData.data?.size ?: 0) { currentItemIndex ->
             val currentItem = responseData.data?.get(currentItemIndex)
             if (currentItem != null) {
-                ResponseItem(data = currentItem)
+                if (currentSearchQuery.isEmpty() || currentItem.title.contains(currentSearchQuery, ignoreCase = true) || currentItem.subTitle.contains(
+                        currentSearchQuery,ignoreCase = true
+                    )
+                ) {
+                    ResponseItem(data = currentItem)
+                }
             }
+
         }
     }
 }
+
 
 @Composable
 fun ResponseItem(
