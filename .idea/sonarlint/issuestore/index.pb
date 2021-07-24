@@ -12,8 +12,6 @@ u
 Eapp/src/test/java/com/spidergod/nobrokerassignment/ExampleUnitTest.kt,3\6\36526eeb7658cec9070ea10e539c4d1c31ffbfd5
 A
 gradle.properties,2\a\2afbb999f001938c88fa43fc2ef52abf0f8213e4
-X
-(gradle/wrapper/gradle-wrapper.properties,f\b\fbe448ebfc3eb2d4e308f6b8b043666f5b57235e
 7
 gradlew,5\b\5bbfa66edb4db3c7c33c5181f43510990d3307f9
 ;
