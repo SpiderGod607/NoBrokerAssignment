@@ -4,8 +4,6 @@
 :
 
 .gitignore,a\5\a5cc2925ca8258af241be7e5b0381edf30266302
-t
-Dapp/src/main/java/com/spidergod/nobrokerassignment/ui/theme/Color.kt,9\1\9103d2a75ebc60c9987555e3180331f735868ee1
 „
 Tapp/src/androidTest/java/com/spidergod/nobrokerassignment/ExampleInstrumentedTest.kt,a\c\aca7a0839988f8e4a9854aa853281c0cc785c1ac
 u

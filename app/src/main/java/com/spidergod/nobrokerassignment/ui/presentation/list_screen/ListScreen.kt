@@ -1,8 +1,10 @@
 package com.spidergod.nobrokerassignment.ui.presentation.list_screen
 
+import android.os.Bundle
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,15 +22,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.spidergod.nobrokerassignment.data.local.entity.NoBrokerEntity
+import com.spidergod.nobrokerassignment.data.parcelables.NoBrokerParcelable
 import com.spidergod.nobrokerassignment.ui.components.LoadingShimmerAnimation
+import com.spidergod.nobrokerassignment.util.Constants.ITEM_DETAIL_SCREEN
+import com.spidergod.nobrokerassignment.util.Constants.ITEM_DETAIL_SCREEN_ARGUMENT
 import com.spidergod.nobrokerassignment.util.Resource
 import androidx.compose.runtime.livedata.observeAsState as observeAsState1
 
 
 @Composable
 fun ListScreen(
+    navController: NavController,
     viewModel: ListScreenViewModel = hiltViewModel()
 ) {
     Scaffold {
@@ -50,17 +57,37 @@ fun ListScreen(
             responseData?.let { it1 ->
                 ListOfResponses(
                     responseData = it1,
-                    viewModel.currentSearchQuery.value
+                    viewModel.currentSearchQuery.value,
+                    onItemClick = { dataToSendToNextScreen ->
+                        val parcelableData = NoBrokerParcelable(
+                            image = dataToSendToNextScreen.image,
+                            title = dataToSendToNextScreen.title,
+                            subTitle = dataToSendToNextScreen.subTitle
+                        )
+
+                        NavigateToItemDetailScreen(
+                            navController = navController,
+                            data = parcelableData
+                        )
+                    }
                 )
             }
-
         }
-
     }
 }
 
+fun NavigateToItemDetailScreen(navController: NavController, data: NoBrokerParcelable) {
+    navController.currentBackStackEntry?.arguments =
+        Bundle().apply { putParcelable(ITEM_DETAIL_SCREEN_ARGUMENT, data) }
+    navController.navigate(ITEM_DETAIL_SCREEN)
+}
+
 @Composable
-fun ListOfResponses(responseData: Resource<List<NoBrokerEntity>>, currentSearchQuery: String) {
+fun ListOfResponses(
+    responseData: Resource<List<NoBrokerEntity>>,
+    currentSearchQuery: String,
+    onItemClick: (NoBrokerEntity) -> Unit
+) {
     if (responseData is Resource.Loading && (responseData.data == null || responseData.data.isEmpty())) {
         LoadingShimmerAnimation()
     } else if (responseData is Resource.Error && (responseData.data == null || responseData.data.isEmpty())) {
@@ -68,12 +95,20 @@ fun ListOfResponses(responseData: Resource<List<NoBrokerEntity>>, currentSearchQ
             Text(text = "Check you internet connection")
         }
     } else {
-        ResponseLazyList(responseData = responseData, currentSearchQuery = currentSearchQuery)
+        ResponseLazyList(
+            responseData = responseData,
+            currentSearchQuery = currentSearchQuery,
+            onItemClick = onItemClick
+        )
     }
 }
 
 @Composable
-fun ResponseLazyList(responseData: Resource<List<NoBrokerEntity>>, currentSearchQuery: String) {
+fun ResponseLazyList(
+    responseData: Resource<List<NoBrokerEntity>>,
+    currentSearchQuery: String,
+    onItemClick: (NoBrokerEntity) -> Unit
+) {
     LazyColumn {
         item {
             Box(modifier = Modifier.height(10.dp))
@@ -81,11 +116,14 @@ fun ResponseLazyList(responseData: Resource<List<NoBrokerEntity>>, currentSearch
         items(responseData.data?.size ?: 0) { currentItemIndex ->
             val currentItem = responseData.data?.get(currentItemIndex)
             if (currentItem != null) {
-                if (currentSearchQuery.isEmpty() || currentItem.title.contains(currentSearchQuery, ignoreCase = true) || currentItem.subTitle.contains(
-                        currentSearchQuery,ignoreCase = true
+                if (currentSearchQuery.isEmpty() || currentItem.title.contains(
+                        currentSearchQuery,
+                        ignoreCase = true
+                    ) || currentItem.subTitle.contains(
+                        currentSearchQuery, ignoreCase = true
                     )
                 ) {
-                    ResponseItem(data = currentItem)
+                    ResponseItem(data = currentItem, onItemClick = onItemClick)
                 }
             }
 
@@ -93,12 +131,16 @@ fun ResponseLazyList(responseData: Resource<List<NoBrokerEntity>>, currentSearch
     }
 }
 
-
 @Composable
 fun ResponseItem(
-    data: NoBrokerEntity
+    data: NoBrokerEntity,
+    onItemClick: (NoBrokerEntity) -> Unit
 ) {
-    Box(modifier = Modifier.padding(vertical = 6.5.dp)) {
+    Box(modifier = Modifier
+        .padding(vertical = 6.5.dp)
+        .clickable {
+            onItemClick(data)
+        }) {
         Box(
             modifier = Modifier
                 .height(53.dp)
@@ -120,13 +162,16 @@ fun ResponseItem(
 
 @Composable
 fun ResponseImageBox(imageUrl: String, title: String) {
-    val painter = rememberImagePainter(data = imageUrl)
     Box(
         modifier = Modifier
             .height(53.dp)
             .width(72.dp)
     ) {
-        Image(modifier = Modifier.fillMaxSize(), painter = painter, contentDescription = title)
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = rememberImagePainter(data = imageUrl),
+            contentDescription = title
+        )
     }
 }
 
@@ -152,9 +197,12 @@ fun SearchBar(
             Spacer(modifier = Modifier.size(8.dp))
             Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
             Spacer(modifier = Modifier.size(5.dp))
-            BasicTextField(value = currentQuery, onValueChange = { newText ->
-                onQueryChange(newText)
-            })
+            BasicTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = currentQuery,
+                onValueChange = { newText ->
+                    onQueryChange(newText)
+                })
         }
     }
 }
