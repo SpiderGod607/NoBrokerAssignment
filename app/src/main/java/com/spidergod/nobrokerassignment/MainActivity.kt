@@ -19,10 +19,23 @@ class MainActivity : ComponentActivity() {
         setContent {
             NoBrokerAssignmentTheme {
 
-
-
             }
         }
     }
 }
 
+@Composable
+fun Greeting(
+    name: String,
+    viewModel: TestViewmodel = hiltViewModel<TestViewmodel>()
+) {
+    Text(text = "Hello ${viewModel.data}!")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    NoBrokerAssignmentTheme {
+        Greeting("Android")
+    }
+}
