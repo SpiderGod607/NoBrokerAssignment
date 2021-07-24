@@ -16,8 +16,6 @@ A
 gradlew.bat,2\a\2a45a911a8f1836b0b6c5b758962572012d8f8c3
 F
 app/proguard-rules.pro,9\e\9e08934d811afe28fbc77aaa3c0d747b94348db9
-?
-settings.gradle,0\5\05efc8b1657769a27696d478ded1e95f38737233
 t
 Dapp/src/main/java/com/spidergod/nobrokerassignment/ui/theme/Shape.kt,d\8\d8d0526b22bcdacef1f21e7833bdad6f3657c78f
 t

@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.spidergod.nobrokerassignment.data.local.entity.NoBrokerEntity
 import com.spidergod.nobrokerassignment.data.parcelables.NoBrokerParcelable
 import com.spidergod.nobrokerassignment.ui.components.LoadingShimmerAnimation
@@ -32,47 +34,60 @@ import com.spidergod.nobrokerassignment.util.Constants.ITEM_DETAIL_SCREEN_ARGUME
 import com.spidergod.nobrokerassignment.util.Resource
 import androidx.compose.runtime.livedata.observeAsState as observeAsState1
 
-
 @Composable
 fun ListScreen(
     navController: NavController,
     viewModel: ListScreenViewModel = hiltViewModel()
 ) {
+
+    val responseData by viewModel.responseData.observeAsState1()
+
     Scaffold {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 25.dp, start = 15.dp, end = 15.dp),
+        val isRefresing =
+            rememberSwipeRefreshState(isRefreshing = (responseData is Resource.Loading))
+        SwipeRefresh(
+            state = isRefresing,
+            onRefresh = {
+                viewModel.getData()
+            }
         ) {
-            Text(text = "Item List")
-            Spacer(modifier = Modifier.size(15.dp))
-            SearchBar(
-                currentQuery = viewModel.currentSearchQuery.value,
-                onQueryChange = { newQuery ->
-                    viewModel.currentSearchQuery.value = newQuery
-                }
-            )
-            val responseData by viewModel.responseData.observeAsState1()
-
-            responseData?.let { it1 ->
-                ListOfResponses(
-                    responseData = it1,
-                    viewModel.currentSearchQuery.value,
-                    onItemClick = { dataToSendToNextScreen ->
-                        val parcelableData = NoBrokerParcelable(
-                            image = dataToSendToNextScreen.image,
-                            title = dataToSendToNextScreen.title,
-                            subTitle = dataToSendToNextScreen.subTitle
-                        )
-
-                        NavigateToItemDetailScreen(
-                            navController = navController,
-                            data = parcelableData
-                        )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 25.dp, start = 15.dp, end = 15.dp),
+            ) {
+                Text(text = "Item List")
+                Spacer(modifier = Modifier.size(15.dp))
+                SearchBar(
+                    currentQuery = viewModel.currentSearchQuery.value,
+                    onQueryChange = { newQuery ->
+                        viewModel.currentSearchQuery.value = newQuery
                     }
                 )
+
+
+                responseData?.let { it1 ->
+                    ListOfResponses(
+                        responseData = it1,
+                        viewModel.currentSearchQuery.value,
+                        onItemClick = { dataToSendToNextScreen ->
+                            val parcelableData = NoBrokerParcelable(
+                                image = dataToSendToNextScreen.image,
+                                title = dataToSendToNextScreen.title,
+                                subTitle = dataToSendToNextScreen.subTitle
+                            )
+
+                            NavigateToItemDetailScreen(
+                                navController = navController,
+                                data = parcelableData
+                            )
+                        }
+                    )
+                }
             }
         }
+
+
     }
 }
 
