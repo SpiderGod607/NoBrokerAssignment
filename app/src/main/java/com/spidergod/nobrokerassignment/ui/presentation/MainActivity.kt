@@ -1,4 +1,4 @@
-package com.spidergod.nobrokerassignment
+package com.spidergod.nobrokerassignment.ui.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

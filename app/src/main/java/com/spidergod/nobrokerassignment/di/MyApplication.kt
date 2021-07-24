@@ -1,4 +1,4 @@
-package com.spidergod.nobrokerassignment
+package com.spidergod.nobrokerassignment.di
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

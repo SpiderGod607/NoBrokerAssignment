@@ -1,10 +1,7 @@
 package com.spidergod.nobrokerassignment.ui.presentation.list_screen
 
 import android.os.Bundle
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,7 +12,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,15 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import coil.transform.CircleCropTransformation
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.spidergod.nobrokerassignment.R
 import com.spidergod.nobrokerassignment.data.local.entity.NoBrokerEntity
 import com.spidergod.nobrokerassignment.data.parcelables.NoBrokerParcelable
 import com.spidergod.nobrokerassignment.ui.components.LoadingShimmerAnimation
 import com.spidergod.nobrokerassignment.util.Constants.ITEM_DETAIL_SCREEN
 import com.spidergod.nobrokerassignment.util.Constants.ITEM_DETAIL_SCREEN_ARGUMENT
 import com.spidergod.nobrokerassignment.util.Resource
-import androidx.compose.runtime.livedata.observeAsState as observeAsState1
 
 @Composable
 fun ListScreen(
@@ -40,7 +37,7 @@ fun ListScreen(
     viewModel: ListScreenViewModel = hiltViewModel()
 ) {
 
-    val responseData by viewModel.responseData.observeAsState1()
+    val responseData = viewModel.results.value
 
     Scaffold {
         val isRefresing =
@@ -103,10 +100,19 @@ fun ListOfResponses(
     currentSearchQuery: String,
     onItemClick: (NoBrokerEntity) -> Unit
 ) {
+
+
+    val verticalScrollSate = rememberScrollState()
+
     if (responseData is Resource.Loading && (responseData.data == null || responseData.data.isEmpty())) {
         LoadingShimmerAnimation()
     } else if (responseData is Resource.Error && (responseData.data == null || responseData.data.isEmpty())) {
-        Box(contentAlignment = Alignment.Center) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state = verticalScrollSate), contentAlignment = Alignment.Center
+        ) {
             Text(text = "Check you internet connection")
         }
     } else {
@@ -184,7 +190,12 @@ fun ResponseImageBox(imageUrl: String, title: String) {
     ) {
         Image(
             modifier = Modifier.fillMaxSize(),
-            painter = rememberImagePainter(data = imageUrl),
+            painter = rememberImagePainter(data = imageUrl,
+                builder = {
+                    crossfade(true)
+                    placeholder(R.drawable.ic_baseline_image_24)
+                    transformations(CircleCropTransformation())
+                }),
             contentDescription = title
         )
     }
@@ -208,16 +219,28 @@ fun SearchBar(
             ),
         contentAlignment = Alignment.CenterStart
     ) {
+
+
         Row {
             Spacer(modifier = Modifier.size(8.dp))
             Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
             Spacer(modifier = Modifier.size(5.dp))
-            BasicTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = currentQuery,
-                onValueChange = { newText ->
-                    onQueryChange(newText)
-                })
+            Box(
+                contentAlignment = Alignment.CenterStart
+            ) {
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = currentQuery,
+                    onValueChange = { newText ->
+                        onQueryChange(newText)
+                    },
+                )
+
+                if (currentQuery.isEmpty()) {
+                    Text(text = "Search Title or Description")
+                }
+            }
         }
     }
 }

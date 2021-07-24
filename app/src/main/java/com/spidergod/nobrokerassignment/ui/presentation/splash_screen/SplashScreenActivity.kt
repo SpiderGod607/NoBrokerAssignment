@@ -1,8 +1,10 @@
-package com.spidergod.nobrokerassignment
+package com.spidergod.nobrokerassignment.ui.presentation.splash_screen
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.spidergod.nobrokerassignment.ui.presentation.MainActivity
+import com.spidergod.nobrokerassignment.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
