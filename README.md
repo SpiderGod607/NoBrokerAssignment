@@ -41,5 +41,5 @@ Go to the [Releases](https://github.com/SpiderGod607/NoBrokerAssignment/releases
 </br>
 
 ## Architecture
-Book Parking is based on MVVM architecture and repository pattern.
+This app is based on MVVM architecture and repository pattern.
 ![architecture](/screenshots/architecture.png)
